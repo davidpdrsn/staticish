@@ -32,3 +32,7 @@ executable static-site-generator
   default-extensions: OverloadedStrings
 
   ghc-options:   -Wall -fwarn-tabs -O2 -fno-warn-name-shadowing
+  other-modules:  App
+                  CompileMarkdown
+                  Import
+                  Types
