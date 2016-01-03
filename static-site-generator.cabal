@@ -1,13 +1,13 @@
 name:                static-site-generator
 version:             0.1.0.0
-synopsis:            Simple project template from stack
+synopsis:            A static site generator with support for dynamic responses
 description:         Please see README.md
-homepage:            http://github.com/githubuser/static-site-generator#readme
+homepage:            http://github.com/davidpdrsn/static-site-generator#readme
 license:             BSD3
 license-file:        LICENSE
-author:              Author name here
-maintainer:          example@example.com
-copyright:           2010 Author Here
+author:              David Pedersen
+maintainer:          david.pdrsn@gmail.com
+copyright:           2016 David Pedersen
 category:            Web
 build-type:          Simple
 cabal-version:       >=1.10
