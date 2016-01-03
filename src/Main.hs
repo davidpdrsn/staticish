@@ -6,7 +6,6 @@ module Main
 import Import
 import CompileMarkdown
 import Network.Wai.Handler.Warp
-import Data.Text.Lazy (Text)
 import System.Directory
 import System.FilePath.Posix
 import App
@@ -28,11 +27,11 @@ port = 4000
 compileAllPostsInDir :: FilePath -> IO Posts
 compileAllPostsInDir dir = do
     let dir' = dir ++ "/"
-    paths <- filter isMarkdownFile <$> map (dir' ++) <$> getDirectoryContents dir
-    contents <- map compileMarkdown <$> mapM T.readFile paths
+    markdownFilePaths <- filter isMarkdownFile <$> map (dir' ++) <$> getDirectoryContents dir
+    contents <- map compileMarkdown <$> mapM T.readFile markdownFilePaths
     let
-      paths' = map (cs . takeBaseName) paths :: [Text]
-      posts = M.fromList $ zip paths' contents
+      markdownFileNames = map (cs . takeBaseName) markdownFilePaths
+      posts = M.fromList $ zip markdownFileNames contents
     return posts
 
 isMarkdownFile :: FilePath -> Bool
