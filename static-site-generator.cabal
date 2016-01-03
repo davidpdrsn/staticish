@@ -17,3 +17,18 @@ executable static-site-generator
   main-is:             Main.hs
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5
+                     , markdown
+                     , text
+                     , blaze-html
+                     , wai
+                     , http-types
+                     , warp
+                     , case-insensitive
+                     , bytestring
+                     , string-conversions
+                     , containers
+                     , directory
+                     , filepath
+  default-extensions: OverloadedStrings
+
+  ghc-options:   -Wall -fwarn-tabs -O2 -fno-warn-name-shadowing
