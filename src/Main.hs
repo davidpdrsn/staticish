@@ -15,9 +15,7 @@ import qualified Data.Text.Lazy.IO as T
 
 main :: IO ()
 main = do
-    putStrLn "Compiling posts"
     posts <- compileAllPostsInDir "posts"
-    putStrLn "Compiled posts"
     putStrLn $ "Listening on post " ++ show port
     run port (app posts)
 
