@@ -1,7 +1,8 @@
 module CompileMarkdown
     ( compileMarkdown
-    , getHtmlText
+
     , CompiledMarkdown
+    , getHtmlText
     )
   where
 
