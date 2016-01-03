@@ -28,12 +28,16 @@ port = 4000
 compileAllPostsInDir :: FilePath -> IO Posts
 compileAllPostsInDir dir = do
     let dir' = dir ++ "/"
-    paths <- filter isMarkdownPost <$> map (dir' ++) <$> getDirectoryContents dir
+    paths <- filter isMarkdownFile <$> map (dir' ++) <$> getDirectoryContents dir
     contents <- map compileMarkdown <$> mapM T.readFile paths
     let
       paths' = map (cs . takeBaseName) paths :: [Text]
       posts = M.fromList $ zip paths' contents
     return posts
 
-isMarkdownPost :: FilePath -> Bool
-isMarkdownPost = (== ".markdown") . takeExtension
+isMarkdownFile :: FilePath -> Bool
+isMarkdownFile = (`elem` markdownExtensions) . takeExtension
+    where markdownExtensions = [ ".markdown"
+                               , ".md"
+                               , ".mkd"
+                               ]
