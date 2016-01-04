@@ -11,6 +11,7 @@ import System.FilePath.Posix
 import App
 import Data.Text.Lazy (Text)
 import Control.Monad
+import Mutex
 
 import qualified Data.Map as M
 import qualified Data.Text.Lazy.IO as T
@@ -18,8 +19,9 @@ import qualified Data.Text.Lazy.IO as T
 main :: IO ()
 main = do
     posts <- compileAllPostsInDir "posts"
+    mutex <- newMutex
     putStrLn $ "Listening on post " ++ show port
-    run port (app posts)
+    run port (app mutex posts)
 
 port :: Port
 port = 4000

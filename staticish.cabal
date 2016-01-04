@@ -29,6 +29,7 @@ executable staticish
                      , containers
                      , directory
                      , filepath
+                     , unix
   default-extensions: OverloadedStrings
 
   ghc-options:   -Wall -fwarn-tabs -O2 -fno-warn-name-shadowing
@@ -36,3 +37,4 @@ executable staticish
                   CompileMarkdown
                   Import
                   Types
+                  Mutex

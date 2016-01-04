@@ -11,17 +11,20 @@ import Network.HTTP.Types
 import Data.CaseInsensitive (CI)
 import Data.ByteString (ByteString)
 import Data.Text.Lazy (Text)
+import Mutex
+import Control.Concurrent
+import Control.Monad
 
 import qualified Data.Map as M
 
-app :: Posts -> Application
-app posts req respond = bracket_ before after (respond response)
+app :: Mutex -> Posts -> Application
+app mutex posts req respond = bracket_ before after (respond response)
     where
       response = case postForRequest posts req of
                   Nothing -> respond404
                   Just post -> respondWithPost post
-      before = logRequest req
-      after = logResponse req response
+      before = logRequest mutex req
+      after = logResponse mutex req response
 
 -- | Finding the matching post
 
@@ -53,13 +56,13 @@ respondWithPost post = responseT ok200 headers html
 
 -- | Logging
 
-logRequest :: Request -> IO ()
-logRequest req = do
+logRequest :: Mutex -> Request -> IO ()
+logRequest mutex req = void $ forkIO $ withMutex mutex $ do
     putStr "Starting "
     logRequestPath req
 
-logResponse :: Request -> Response -> IO ()
-logResponse req _res = do
+logResponse :: Mutex -> Request -> Response -> IO ()
+logResponse mutex req _res = void $ forkIO $ withMutex mutex $ do
     putStr "Finishing "
     logRequestPath req
 
