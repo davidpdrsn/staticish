@@ -47,5 +47,4 @@ isMarkdownFile :: FilePath -> Bool
 isMarkdownFile = (`elem` markdownExtensions) . takeExtension
     where markdownExtensions = [ ".markdown"
                                , ".md"
-                               , ".mkd"
                                ]
