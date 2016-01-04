@@ -14,17 +14,20 @@ import Data.Text.Lazy (Text)
 import Mutex
 import Control.Concurrent
 import Control.Monad
+import Text.Regex
 
 import qualified Data.Map as M
+import qualified Data.Text.Lazy.IO as T
 
 app :: Mutex -> Posts -> Application
-app mutex posts req respond = bracket_ before after (respond response)
-    where
-      response = case postForRequest posts req of
-                  Nothing -> respond404
-                  Just post -> respondWithPost post
-      before = logRequest mutex req
-      after = logResponse mutex req response
+app mutex posts req respond = do
+    layout <- T.readFile "views/layout.html"
+    let response = case postForRequest posts req of
+                     Nothing -> respond404
+                     Just post -> respondWithPost layout post
+        before = logRequest mutex req
+        after = logResponse mutex req response
+    bracket_ before after (respond response)
 
 -- | Finding the matching post
 
@@ -46,13 +49,23 @@ responseT status headers text = responseLBS status headers $ cs text
 respond404 :: Response
 respond404 = responseT notFound404 [] "Not found"
 
-respondWithPost :: CompiledMarkdown -> Response
-respondWithPost post = responseT ok200 headers html
+respondWithPost :: Text -> CompiledMarkdown -> Response
+respondWithPost layout post = responseT ok200 headers html
      where
-       html = getHtmlText post
+       html = applyLayout layout $ getHtmlText post
 
        headers :: [(CI ByteString, ByteString)]
        headers = [("Content-Type", "text/html")]
+
+applyLayout :: Text -> Text -> Text
+applyLayout layout html = let regex = mkRegexT "{{ *yield *}}"
+                          in subRegexT regex layout html
+
+mkRegexT :: Text -> Regex
+mkRegexT = mkRegex . cs
+
+subRegexT :: Regex -> Text -> Text -> Text
+subRegexT a b c = cs $ subRegex a (cs b) (cs c)
 
 -- | Logging
 

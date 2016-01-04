@@ -30,6 +30,7 @@ executable staticish
                      , directory
                      , filepath
                      , unix
+                     , regex-compat
   default-extensions: OverloadedStrings
 
   ghc-options:   -Wall -fwarn-tabs -O2 -fno-warn-name-shadowing
