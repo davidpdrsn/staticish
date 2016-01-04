@@ -15,6 +15,8 @@ import Mutex
 import Control.Concurrent
 import Control.Monad
 import Text.Regex
+import Control.Applicative
+import Data.Maybe
 
 import qualified Data.Map as M
 import qualified Data.Text.Lazy.IO as T
@@ -22,11 +24,11 @@ import qualified Data.Text.Lazy.IO as T
 app :: Mutex -> Posts -> Application
 app mutex posts req respond = do
     layout <- T.readFile "views/layout.html"
-    let response = case postForRequest posts req of
-                     Nothing -> respond404
-                     Just post -> respondWithPost layout post
-        before = logRequest mutex req
-        after = logResponse mutex req response
+    let
+      response = fromJust $ respondWithPost layout <$> postForRequest posts req
+                        <|> Just respond404
+      before = logRequest mutex req
+      after = logResponse mutex req response
     bracket_ before after (respond response)
 
 -- | Finding the matching post
