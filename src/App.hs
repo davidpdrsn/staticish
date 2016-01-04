@@ -21,17 +21,19 @@ import Data.Maybe
 import qualified Data.Map as M
 import qualified Data.Text.Lazy.IO as T
 
-app :: Mutex -> Posts -> Application
-app mutex posts req respond = do
+app :: Mutex -> Posts -> Views -> Application
+app mutex posts views req respond = do
     layout <- T.readFile "views/layout.html"
     let
-      response = fromJust $ respondWithPost layout <$> postForRequest posts req
+      response = fromJust $ respondWithHtml layout <$> getHtmlText <$> postForRequest posts req
+                        <|> respondWithHtml layout <$> viewForRoot views req
+                        <|> respondWithHtml layout <$> viewForRequest views req
                         <|> Just respond404
       before = logRequest mutex req
       after = logResponse mutex req response
     bracket_ before after (respond response)
 
--- | Finding the matching post
+-- | Finding the matching post/view
 
 postForRequest :: Posts -> Request -> Maybe CompiledMarkdown
 postForRequest posts req = do
@@ -43,19 +45,25 @@ postNameFromPath :: [Text] -> Maybe Text
 postNameFromPath ["posts", name] = Just name
 postNameFromPath _ = Nothing
 
-responseT :: Status -> ResponseHeaders -> Text -> Response
-responseT status headers text = responseLBS status headers $ cs text
+viewForRequest :: Views -> Request -> Maybe Text
+viewForRequest views req = M.lookup (cs $ rawPathInfo req) views
+
+viewForRoot :: Views -> Request -> Maybe Text
+viewForRoot views req = if rawPathInfo req == "/"
+                          then M.lookup "/index" views
+                          else Nothing
 
 -- | Response convenience functions
 
 respond404 :: Response
 respond404 = responseT notFound404 [] "Not found"
 
-respondWithPost :: Text -> CompiledMarkdown -> Response
-respondWithPost layout post = responseT ok200 headers html
-     where
-       html = applyLayout layout $ getHtmlText post
+responseT :: Status -> ResponseHeaders -> Text -> Response
+responseT status headers text = responseLBS status headers $ cs text
 
+respondWithHtml :: Text -> Text -> Response
+respondWithHtml layout post = responseT ok200 headers (applyLayout layout post)
+     where
        headers :: [(CI ByteString, ByteString)]
        headers = [("Content-Type", "text/html")]
 

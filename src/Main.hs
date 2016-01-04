@@ -12,6 +12,7 @@ import App
 import Data.Text.Lazy (Text)
 import Control.Monad
 import Mutex
+import Data.List
 
 import qualified Data.Map as M
 import qualified Data.Text.Lazy.IO as T
@@ -19,9 +20,10 @@ import qualified Data.Text.Lazy.IO as T
 main :: IO ()
 main = do
     posts <- compileAllPostsInDir "posts"
+    views <- findViewsInDir "views"
     mutex <- newMutex
     putStrLn $ "Listening on post " ++ show port
-    run port (app mutex posts)
+    run port (app mutex posts views)
 
 port :: Port
 port = 4000
@@ -31,6 +33,18 @@ compileAllPostsInDir dir = do
     filesInDir <- getFilesInDir dir
     contents <- mapM T.readFile filesInDir
     return $ compileMarkdownPosts $ zip filesInDir contents
+
+findViewsInDir :: FilePath -> IO Views
+findViewsInDir dir = do
+    filesInDir <- filter (not . isLayout) <$> getFilesInDir dir
+    contents <- mapM T.readFile filesInDir
+    return $ M.fromList $ zip (map (getViewName . cs) filesInDir) contents
+
+getViewName :: Text -> Text
+getViewName = ("/" `mappend`) . cs . takeBaseName . cs
+
+isLayout :: FilePath -> Bool
+isLayout = isInfixOf "layout"
 
 getFilesInDir :: FilePath -> IO [FilePath]
 getFilesInDir dir = do
