@@ -25,10 +25,10 @@ app :: Mutex -> Posts -> Views -> Application
 app mutex posts views req respond = do
     layout <- T.readFile "views/layout.html"
     let
-      response = fromJust $ respondWithHtml layout <$> getHtmlText <$> postForRequest posts req
-                        <|> respondWithHtml layout <$> viewForRoot views req
-                        <|> respondWithHtml layout <$> viewForRequest views req
-                        <|> Just respond404
+      response = fromMaybe respond404 $
+                   respondWithHtml layout <$> getHtmlText <$> postForRequest posts req
+               <|> respondWithHtml layout <$> viewForRoot views req
+               <|> respondWithHtml layout <$> viewForRequest views req
       before = logRequest mutex req
       after = logResponse mutex req response
     bracket_ before after (respond response)
