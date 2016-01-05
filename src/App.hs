@@ -19,11 +19,9 @@ import Control.Applicative
 import Data.Maybe
 
 import qualified Data.Map as M
-import qualified Data.Text.Lazy.IO as T
 
-app :: Mutex -> Posts -> Views -> Application
-app mutex posts views req respond = do
-    layout <- T.readFile "views/layout.html"
+app :: Mutex -> Text -> Posts -> Views -> Application
+app mutex layout posts views req respond = do
     let
       response = fromMaybe respond404 $
                    respondWithHtml layout <$> getHtmlText <$> postForRequest posts req
