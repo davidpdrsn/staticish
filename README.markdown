@@ -9,8 +9,11 @@ The idea behind this project is that I would like a static site generator that a
 ## Todo
 - [x] Add support for some kind of layout file.
 - [x] Don't show logging output from the main thread. Spawn new processes and somehow prevent them from writing all at the same time.
-- [ ] Track the amount of time it look for a request to complete and show that on the log.
+- [x] Add static views.
+- [ ] Add dynamic routes that respond with JSON.
+- [ ] Make default JSON endpoint that just returns all the posts.
 - [ ] Add script for quickly adding new posts with format like "2015-01-15-title-goes-here.markdown".
 - [ ] Get syntax highlighting of code snippets in posts.
 - [ ] Make executable that can be run from any directory with "posts" and "views" folders.
 - [ ] Add optional to executable to generate the required folders. At the moment that would be "posts" and "views".
+- [ ] Track the amount of time it look for a request to complete and show that on the log.
