@@ -3,29 +3,32 @@ module App
     )
   where
 
-import Import
 import CompileMarkdown
-import Network.Wai
-import Control.Exception
-import Data.Monoid
-import Network.HTTP.Types
-import Data.CaseInsensitive (CI)
-import Data.ByteString (ByteString)
-import Data.Text.Lazy (Text)
-import Mutex
-import Control.Concurrent
-import Control.Monad
-import Text.Regex
 import Control.Applicative
-import Data.Maybe
-import System.Directory
+import Control.Concurrent
+import Control.Exception
+import Control.Monad
+import Data.Aeson
+import Data.Aeson.Encode
+import Data.ByteString (ByteString)
+import Data.CaseInsensitive (CI)
 import Data.Map (Map)
+import Data.Maybe
+import Data.Monoid
+import Data.Text.Lazy (Text)
+import Data.Text.Lazy.Builder
+import Import
+import Mutex
+import Network.HTTP.Types
+import Network.Wai
+import System.Directory
+import Text.Regex
 
 import qualified Data.Map as M
 import qualified Data.Text.Lazy.IO as T
 
-app :: Mutex -> Text -> (Map Text Post) -> Views -> Application
-app mutex layout posts views req respond = do
+app :: Mutex -> Text -> Map Text Post -> Views -> Handlers -> Application
+app mutex layout posts views handlers req respond = do
     staticResponse <- staticFileForRequest req
     let
       response = fromMaybe respond404 $
@@ -33,6 +36,7 @@ app mutex layout posts views req respond = do
                <|> respondWithHtml layout <$> getHtmlText <$> postForRequest posts req
                <|> respondWithHtml layout <$> viewForRoot views req
                <|> respondWithHtml layout <$> viewForRequest views req
+               <|> respondWithJson <$> jsonForRequest (M.elems posts) handlers req
       before = logRequest mutex req
       after = logResponse mutex req response
     bracket_ before after (respond response)
@@ -65,6 +69,11 @@ staticFileForRequest req = do
       then Just <$> T.readFile path
       else return Nothing
 
+jsonForRequest :: [Post] -> Handlers -> Request -> Maybe Value
+jsonForRequest posts handlers req = do
+    f <- M.lookup (cs $ rawPathInfo req) handlers
+    return $ f posts req
+
 -- | Response convenience functions
 
 respond404 :: Response
@@ -80,7 +89,13 @@ respondWithHtml layout post = responseT ok200 headers (applyLayout layout post)
        headers = [("Content-Type", "text/html")]
 
 respondWithFile :: Text -> Response
-respondWithFile text = responseT ok200 [] text
+respondWithFile = responseT ok200 []
+
+respondWithJson :: Value -> Response
+respondWithJson json = responseT ok200 headers $ toLazyText $ encodeToTextBuilder json
+     where
+       headers :: [(CI ByteString, ByteString)]
+       headers = [("Content-Type", "application/json")]
 
 applyLayout :: Text -> Text -> Text
 applyLayout layout html = let regex = mkRegexT "{{ *yield *}}"

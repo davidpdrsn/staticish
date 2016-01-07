@@ -31,7 +31,10 @@ executable staticish
                      , filepath
                      , unix
                      , regex-compat
+                     , aeson
+                     , mtl
   default-extensions: OverloadedStrings
+                      TemplateHaskell
 
   ghc-options:   -Wall -fwarn-tabs -O2 -fno-warn-name-shadowing
   other-modules:  App

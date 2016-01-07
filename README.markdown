@@ -10,8 +10,8 @@ The idea behind this project is that I would like a static site generator that a
 - [x] Add support for some kind of layout file.
 - [x] Don't show logging output from the main thread. Spawn new processes and somehow prevent them from writing all at the same time.
 - [x] Add static views.
-- [ ] Add dynamic routes that respond with JSON.
-- [ ] Make default JSON endpoint that just returns all the posts.
+- [x] Add dynamic routes that respond with JSON.
+- [x] Make default JSON endpoint that just returns all the posts.
 - [x] Add serving of static files.
 - [ ] Add script for quickly adding new posts with format like "2015-01-15-title-goes-here.markdown".
 - [ ] Get syntax highlighting of code snippets in posts.

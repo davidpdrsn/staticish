@@ -1,8 +1,10 @@
 module Types where
 
+import CompileMarkdown (CompiledMarkdown)
+import Data.Aeson
 import Data.Map (Map)
 import Data.Text.Lazy (Text)
-import CompileMarkdown (CompiledMarkdown)
+import Network.Wai
 
 data Post = Post
           { postTitle :: Text
@@ -10,4 +12,9 @@ data Post = Post
           }
           deriving (Show, Eq)
 
+instance ToJSON Post where
+  toJSON (Post title body) = object ["title" .= title, "body" .= body]
+
 type Views = Map Text Text
+
+type Handlers = Map Text ([Post] -> Request -> Value)
