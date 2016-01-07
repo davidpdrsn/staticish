@@ -7,6 +7,7 @@ import Import
 import CompileMarkdown
 import Network.Wai
 import Control.Exception
+import Data.Monoid
 import Network.HTTP.Types
 import Data.CaseInsensitive (CI)
 import Data.ByteString (ByteString)
@@ -17,14 +18,18 @@ import Control.Monad
 import Text.Regex
 import Control.Applicative
 import Data.Maybe
+import System.Directory
 
 import qualified Data.Map as M
+import qualified Data.Text.Lazy.IO as T
 
 app :: Mutex -> Text -> Posts -> Views -> Application
 app mutex layout posts views req respond = do
+    staticResponse <- staticFileForRequest req
     let
       response = fromMaybe respond404 $
-                   respondWithHtml layout <$> getHtmlText <$> postForRequest posts req
+                   respondWithFile <$> staticResponse
+               <|> respondWithHtml layout <$> getHtmlText <$> postForRequest posts req
                <|> respondWithHtml layout <$> viewForRoot views req
                <|> respondWithHtml layout <$> viewForRequest views req
       before = logRequest mutex req
@@ -51,6 +56,14 @@ viewForRoot views req = if rawPathInfo req == "/"
                           then M.lookup "/index" views
                           else Nothing
 
+staticFileForRequest :: Request -> IO (Maybe Text)
+staticFileForRequest req = do
+    let path = cs $ "public/" <> rawPathInfo req
+    exists <- doesFileExist path
+    if exists
+      then Just <$> T.readFile path
+      else return Nothing
+
 -- | Response convenience functions
 
 respond404 :: Response
@@ -64,6 +77,9 @@ respondWithHtml layout post = responseT ok200 headers (applyLayout layout post)
      where
        headers :: [(CI ByteString, ByteString)]
        headers = [("Content-Type", "text/html")]
+
+respondWithFile :: Text -> Response
+respondWithFile text = responseT ok200 [] text
 
 applyLayout :: Text -> Text -> Text
 applyLayout layout html = let regex = mkRegexT "{{ *yield *}}"

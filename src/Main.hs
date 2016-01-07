@@ -21,7 +21,7 @@ main :: IO ()
 main = do
     posts <- compileAllPostsInDir "posts"
     views <- findViewsInDir "views"
-    layout <- T.readFile "views/layout.html"
+    layout <- id T.readFile "views/layout.html"
     mutex <- newMutex
     putStrLn $ "Listening on post " ++ show port
     run port (app mutex layout posts views)
