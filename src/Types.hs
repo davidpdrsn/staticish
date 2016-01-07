@@ -4,5 +4,10 @@ import Data.Map (Map)
 import Data.Text.Lazy (Text)
 import CompileMarkdown (CompiledMarkdown)
 
-type Posts = Map Text CompiledMarkdown
+data Post = Post
+          { postTitle :: Text
+          , postBody  :: CompiledMarkdown
+          }
+          deriving (Show, Eq)
+
 type Views = Map Text Text

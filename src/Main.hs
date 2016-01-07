@@ -13,6 +13,7 @@ import Data.Text.Lazy (Text)
 import Control.Monad
 import Mutex
 import Data.List
+import Data.Map (Map)
 
 import qualified Data.Map as M
 import qualified Data.Text.Lazy.IO as T
@@ -29,7 +30,7 @@ main = do
 port :: Port
 port = 4000
 
-compileAllPostsInDir :: FilePath -> IO Posts
+compileAllPostsInDir :: FilePath -> IO (Map Text Post)
 compileAllPostsInDir dir = do
     filesInDir <- getFilesInDir dir
     contents <- mapM T.readFile filesInDir
@@ -52,13 +53,14 @@ getFilesInDir dir = do
     allFiles <- map ((dir ++ "/") ++) <$> getDirectoryContents dir
     filterM doesFileExist allFiles
 
-compileMarkdownPosts :: [(FilePath, Text)] -> Posts
+compileMarkdownPosts :: [(FilePath, Text)] -> Map Text Post
 compileMarkdownPosts filesAndContents =
     let markdownFiles = filter (isMarkdownFile . fst) filesAndContents
         (filenames, contents) = unzip markdownFiles
         postTitles = map (cs . takeBaseName) filenames
         compiledContents = map compileMarkdown contents
-    in M.fromList $ zip postTitles compiledContents
+        posts = zipWith Post postTitles compiledContents
+    in M.fromList $ zip postTitles posts
 
 isMarkdownFile :: FilePath -> Bool
 isMarkdownFile = (`elem` markdownExtensions) . takeExtension

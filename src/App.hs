@@ -19,11 +19,12 @@ import Text.Regex
 import Control.Applicative
 import Data.Maybe
 import System.Directory
+import Data.Map (Map)
 
 import qualified Data.Map as M
 import qualified Data.Text.Lazy.IO as T
 
-app :: Mutex -> Text -> Posts -> Views -> Application
+app :: Mutex -> Text -> (Map Text Post) -> Views -> Application
 app mutex layout posts views req respond = do
     staticResponse <- staticFileForRequest req
     let
@@ -38,11 +39,11 @@ app mutex layout posts views req respond = do
 
 -- | Finding the matching post/view
 
-postForRequest :: Posts -> Request -> Maybe CompiledMarkdown
+postForRequest :: (Map Text Post) -> Request -> Maybe CompiledMarkdown
 postForRequest posts req = do
     let path = cs <$> pathInfo req
     name <- postNameFromPath path
-    M.lookup name posts
+    M.lookup name (M.map postBody posts)
 
 postNameFromPath :: [Text] -> Maybe Text
 postNameFromPath ["posts", name] = Just name

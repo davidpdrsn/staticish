@@ -15,3 +15,4 @@ compileMarkdown = CompiledMarkdown . renderHtml . markdown defaultSettings
     where defaultSettings = def
 
 newtype CompiledMarkdown = CompiledMarkdown { getHtmlText :: Text }
+                           deriving (Show, Eq)
