@@ -42,3 +42,4 @@ executable staticish
                   Import
                   Types
                   Mutex
+                  Handlers

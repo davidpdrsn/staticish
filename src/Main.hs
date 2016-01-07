@@ -7,16 +7,15 @@ import App
 import CompileMarkdown
 import Control.Monad
 import Control.Monad.State
-import Data.Aeson
 import Data.List
 import Data.Map (Map)
 import Data.Text.Lazy (Text)
 import Import
 import Mutex
-import Network.Wai
 import Network.Wai.Handler.Warp
 import System.Directory
 import System.FilePath.Posix
+import Handlers
 
 import qualified Data.Map as M
 import qualified Data.Text.Lazy.IO as T
@@ -30,15 +29,6 @@ main = do
     putStrLn $ "Listening on post " ++ show port
     let handlerMap = execState buildHandlers M.empty
     run port (app mutex layout posts views handlerMap)
-
-buildHandlers :: State Handlers ()
-buildHandlers = do
-    addHandler "/all-posts" $ \posts _req -> toJSON posts
-
-addHandler :: Text -> ([Post] -> Request -> Value) -> State Handlers ()
-addHandler route f = do
-    st <- get
-    put $ M.insert route f st
 
 port :: Port
 port = 4000
