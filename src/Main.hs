@@ -24,7 +24,7 @@ main :: IO ()
 main = do
     posts <- compileAllPostsInDir "posts"
     views <- findViewsInDir "views"
-    layout <- id T.readFile "views/layout.html"
+    layout <- T.readFile "views/layout.html"
     mutex <- newMutex
     putStrLn $ "Listening on post " ++ show port
     let handlerMap = execState buildHandlers M.empty
