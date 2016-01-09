@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+echo "--- Building"
+stack build
+
+echo "--- Running staticish"
+./.stack-work/install/x86_64-osx/lts-4.0/7.10.3/bin/staticish $@

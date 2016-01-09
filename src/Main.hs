@@ -28,6 +28,16 @@ main = do
     args <- getArgs
     fromMaybe (unknownArgs args) (parseArgs args)
 
+runApp :: IO ()
+runApp = do
+    posts <- compileAllPostsInDir "posts"
+    views <- findViewsInDir "views"
+    layout <- T.readFile "views/layout.html"
+    mutex <- newMutex
+    putStrLn $ "Listening on post " ++ show port
+    let handlerMap = execState buildHandlers M.empty
+    run port (app mutex layout posts views handlerMap)
+
 unknownArgs :: [String] -> IO ()
 unknownArgs [] = do putStrLn "No arguments"
                     putStrLn ""
@@ -56,16 +66,6 @@ supportedArgs = M.fromList [ ("server", runApp)
                            , ("--help", showDoc)
                            , ("-h", showDoc)
                            ]
-
-runApp :: IO ()
-runApp = do
-    posts <- compileAllPostsInDir "posts"
-    views <- findViewsInDir "views"
-    layout <- T.readFile "views/layout.html"
-    mutex <- newMutex
-    putStrLn $ "Listening on post " ++ show port
-    let handlerMap = execState buildHandlers M.empty
-    run port (app mutex layout posts views handlerMap)
 
 port :: Port
 port = 4000
