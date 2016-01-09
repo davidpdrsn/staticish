@@ -1,5 +1,6 @@
 module Main
     ( main
+    , runApp
     )
   where
 
@@ -9,19 +10,55 @@ import Control.Monad
 import Control.Monad.State
 import Data.List
 import Data.Map (Map)
+import Data.Maybe
 import Data.Text.Lazy (Text)
+import Handlers
 import Import
 import Mutex
 import Network.Wai.Handler.Warp
 import System.Directory
+import System.Environment
 import System.FilePath.Posix
-import Handlers
 
 import qualified Data.Map as M
 import qualified Data.Text.Lazy.IO as T
 
 main :: IO ()
 main = do
+    args <- getArgs
+    fromMaybe (unknownArgs args) (parseArgs args)
+
+unknownArgs :: [String] -> IO ()
+unknownArgs [] = do putStrLn "No arguments"
+                    putStrLn ""
+                    showDoc
+unknownArgs args = do putStr "Unknown arguments "
+                      print args
+                      putStrLn ""
+                      showDoc
+
+showDoc :: IO ()
+showDoc = putStrLn doc
+    where doc = intercalate "\n" [ "Staticish help"
+                                 , ""
+                                 , "  server, s      # Start the server"
+                                 , "  --help, -h     # Show this message"
+                                 , ""
+                                 ]
+
+parseArgs :: [String] -> Maybe (IO ())
+parseArgs [arg] = M.lookup arg supportedArgs
+parseArgs _ = Nothing
+
+supportedArgs :: Map String (IO ())
+supportedArgs = M.fromList [ ("server", runApp)
+                           , ("s", runApp)
+                           , ("--help", showDoc)
+                           , ("-h", showDoc)
+                           ]
+
+runApp :: IO ()
+runApp = do
     posts <- compileAllPostsInDir "posts"
     views <- findViewsInDir "views"
     layout <- T.readFile "views/layout.html"
