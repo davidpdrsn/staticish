@@ -13,6 +13,7 @@ The idea behind this project is that I would like a static site generator that a
 - [x] Add dynamic routes that respond with JSON.
 - [x] Make default JSON endpoint that just returns all the posts.
 - [x] Add serving of static files.
+- [x] Show status code of response
 - [ ] Add script for quickly adding new posts with format like "2015-01-15-title-goes-here.markdown".
 - [ ] Get syntax highlighting of code snippets in posts.
 - [ ] Make executable that can be run from any directory with "posts" and "views" folders.

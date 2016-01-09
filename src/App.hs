@@ -112,15 +112,15 @@ subRegexT a b c = cs $ subRegex a (cs b) (cs c)
 logRequest :: Mutex -> Request -> IO ()
 logRequest mutex req = void $ forkIO $ withMutex mutex $ do
     putStr "Starting "
-    logRequestPath req
+    putStr $ cs $ requestMethod req
+    putStr " "
+    putStrLn $ cs $ rawPathInfo req
 
 logResponse :: Mutex -> Request -> Response -> IO ()
-logResponse mutex req _res = void $ forkIO $ withMutex mutex $ do
+logResponse mutex req res = void $ forkIO $ withMutex mutex $ do
     putStr "Finishing "
-    logRequestPath req
-
-logRequestPath :: Request -> IO ()
-logRequestPath req = do
     putStr $ cs $ requestMethod req
+    putStr " "
+    putStr $ show $ statusCode $ responseStatus res
     putStr " "
     putStrLn $ cs $ rawPathInfo req
