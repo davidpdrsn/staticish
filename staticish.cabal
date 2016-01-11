@@ -33,6 +33,7 @@ executable staticish
                      , regex-compat
                      , aeson
                      , mtl
+                     , optparse-applicative
   default-extensions: OverloadedStrings
                       TemplateHaskell
 
@@ -43,3 +44,4 @@ executable staticish
                   Types
                   Mutex
                   Handlers
+                  OptionParsing

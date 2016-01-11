@@ -1,6 +1,6 @@
 module Main
     ( main
-    , runApp
+    , server
     )
   where
 
@@ -10,26 +10,24 @@ import Control.Monad
 import Control.Monad.State
 import Data.List
 import Data.Map (Map)
-import Data.Maybe
 import Data.Text.Lazy (Text)
 import Handlers
 import Import
 import Mutex
 import Network.Wai.Handler.Warp
+import OptionParsing
 import System.Directory
-import System.Environment
 import System.FilePath.Posix
+import Options.Applicative
 
 import qualified Data.Map as M
 import qualified Data.Text.Lazy.IO as T
 
 main :: IO ()
-main = do
-    args <- getArgs
-    fromMaybe (unknownArgs args) (parseArgs args)
+main = runApp =<< execParser (parseCommand `withInfo` "Staticish site generator")
 
-runApp :: IO ()
-runApp = do
+runApp :: Command -> IO ()
+runApp (Server port) = do
     posts <- compileAllPostsInDir "posts"
     views <- findViewsInDir "views"
     layout <- T.readFile "views/layout.html"
@@ -37,38 +35,9 @@ runApp = do
     putStrLn $ "Listening on post " ++ show port
     let handlerMap = execState buildHandlers M.empty
     run port (app mutex layout posts views handlerMap)
-
-unknownArgs :: [String] -> IO ()
-unknownArgs [] = do putStrLn "No arguments"
-                    putStrLn ""
-                    showDoc
-unknownArgs args = do putStr "Unknown arguments "
-                      print args
-                      putStrLn ""
-                      showDoc
-
-showDoc :: IO ()
-showDoc = putStrLn doc
-    where doc = intercalate "\n" [ "Staticish help"
-                                 , ""
-                                 , "  server, s      # Start the server"
-                                 , "  --help, -h     # Show this message"
-                                 , ""
-                                 ]
-
-parseArgs :: [String] -> Maybe (IO ())
-parseArgs [arg] = M.lookup arg supportedArgs
-parseArgs _ = Nothing
-
-supportedArgs :: Map String (IO ())
-supportedArgs = M.fromList [ ("server", runApp)
-                           , ("s", runApp)
-                           , ("--help", showDoc)
-                           , ("-h", showDoc)
-                           ]
-
-port :: Port
-port = 4000
+runApp (New path) = do
+    putStrLn "Not supported yet"
+    putStrLn path
 
 compileAllPostsInDir :: FilePath -> IO (Map Text Post)
 compileAllPostsInDir dir = do
