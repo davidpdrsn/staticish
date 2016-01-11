@@ -1,6 +1,5 @@
 module Main
     ( main
-    , server
     )
   where
 
@@ -28,13 +27,12 @@ main = runApp =<< execParser (parseCommand `withInfo` "Staticish site generator"
 
 runApp :: Command -> IO ()
 runApp (Server port) = do
-    posts <- compileAllPostsInDir "posts"
-    views <- findViewsInDir "views"
-    layout <- T.readFile "views/layout.html"
-    mutex <- newMutex
-    putStrLn $ "Listening on post " ++ show port
-    let handlerMap = execState buildHandlers M.empty
-    run port (app mutex layout posts views handlerMap)
+    putStrLn $ "Listening on port " ++ show port
+    run port =<< (app <$> newMutex
+                      <*> T.readFile "views/layout.html"
+                      <*> compileAllPostsInDir "posts"
+                      <*> findViewsInDir "views"
+                      <*> pure (execState buildHandlers M.empty))
 runApp (New path) = do
     putStrLn "Not supported yet"
     putStrLn path
