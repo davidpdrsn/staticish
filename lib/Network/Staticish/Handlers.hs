@@ -1,9 +1,9 @@
-module Handlers
+module Network.Staticish.Handlers
     ( buildHandlers
     )
   where
 
-import Import
+import Network.Staticish.Import
 import Control.Monad.State
 import Network.Wai
 import Data.Aeson

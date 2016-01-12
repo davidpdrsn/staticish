@@ -1,4 +1,4 @@
-module CompileMarkdown
+module Network.Staticish.CompileMarkdown
     ( compileMarkdown
 
     , CompiledMarkdown

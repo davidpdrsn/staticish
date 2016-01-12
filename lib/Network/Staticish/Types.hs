@@ -1,6 +1,6 @@
-module Types where
+module Network.Staticish.Types where
 
-import CompileMarkdown (CompiledMarkdown)
+import Network.Staticish.CompileMarkdown (CompiledMarkdown)
 import Data.Aeson
 import Data.Map (Map)
 import Data.Text.Lazy (Text)

@@ -1,9 +1,8 @@
-module App
+module Network.Staticish.App
     ( app
     )
   where
 
-import CompileMarkdown
 import Control.Applicative
 import Control.Concurrent
 import Control.Exception
@@ -17,9 +16,10 @@ import Data.Maybe
 import Data.Monoid
 import Data.Text.Lazy (Text)
 import Data.Text.Lazy.Builder
-import Import
-import Mutex
 import Network.HTTP.Types
+import Network.Staticish.CompileMarkdown
+import Network.Staticish.Import
+import Network.Staticish.Mutex
 import Network.Wai
 import System.Directory
 import Text.Regex

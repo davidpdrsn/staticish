@@ -1,29 +1,29 @@
-module Main
-    ( main
+module Network.Staticish
+    ( defaultMain
     )
   where
 
-import App
-import CompileMarkdown
 import Control.Monad
 import Control.Monad.State
 import Data.List
 import Data.Map (Map)
 import Data.Text.Lazy (Text)
-import Handlers
-import Import
-import Mutex
+import Network.Staticish.App
+import Network.Staticish.CompileMarkdown
+import Network.Staticish.Handlers
+import Network.Staticish.Import
+import Network.Staticish.Mutex
+import Network.Staticish.OptionParsing
 import Network.Wai.Handler.Warp
-import OptionParsing
+import Options.Applicative
 import System.Directory
 import System.FilePath.Posix
-import Options.Applicative
 
 import qualified Data.Map as M
 import qualified Data.Text.Lazy.IO as T
 
-main :: IO ()
-main = runApp =<< execParser (parseCommand `withInfo` "Staticish site generator")
+defaultMain :: IO ()
+defaultMain = runApp =<< execParser (parseCommand `withInfo` "Staticish site generator")
 
 runApp :: Command -> IO ()
 runApp (Server port) = do

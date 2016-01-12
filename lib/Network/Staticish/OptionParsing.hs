@@ -1,4 +1,4 @@
-module OptionParsing
+module Network.Staticish.OptionParsing
     ( Command(..)
     , parseCommand
     , withInfo

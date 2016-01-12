@@ -1,4 +1,4 @@
-module Mutex where
+module Network.Staticish.Mutex where
 
 import Control.Concurrent
 

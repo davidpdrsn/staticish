@@ -12,11 +12,22 @@ category:            Web
 build-type:          Simple
 cabal-version:       >=1.10
 
-executable staticish
-  hs-source-dirs:      src
-  main-is:             Main.hs
-  default-language:    Haskell2010
-  build-depends:       base >= 4.7 && < 5
+library
+    hs-source-dirs:   lib
+    exposed-modules:  Network.Staticish
+    other-modules:    Network.Staticish.App
+                      Network.Staticish.CompileMarkdown
+                      Network.Staticish.Handlers
+                      Network.Staticish.Import
+                      Network.Staticish.Mutex
+                      Network.Staticish.OptionParsing
+                      Network.Staticish.Types
+    default-language: Haskell2010
+
+    default-extensions: TemplateHaskell
+                        OverloadedStrings
+
+    build-depends:     base >= 4.7 && < 5
                      , markdown
                      , text
                      , blaze-html
@@ -34,14 +45,10 @@ executable staticish
                      , aeson
                      , mtl
                      , optparse-applicative
-  default-extensions: OverloadedStrings
-                      TemplateHaskell
 
-  ghc-options:   -Wall -fwarn-tabs -O2 -fno-warn-name-shadowing
-  other-modules:  App
-                  CompileMarkdown
-                  Import
-                  Types
-                  Mutex
-                  Handlers
-                  OptionParsing
+executable         staticish
+    main-is:           Main.hs
+    hs-source-dirs:    app
+    default-language:  Haskell2010
+    build-depends:     base, staticish
+    ghc-options:       -threaded -O2
